@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYIEETUBEE!! | Your Videos</title>
+    <style>
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        
+        /* BACKGROUND SETUP */
+        #bgVideo {
+            position: fixed;
+            top: 0; left: 0;
+            min-width: 100%; min-height: 100%;
+            z-index: -2;
+            object-fit: cover;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(1, 23, 41, 0.75);
+            z-index: -1;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif; 
+            margin: 0; 
+            overflow-x: hidden; 
+            background: #000; 
+        }
+
+        /* --- SNEAKY POPUP STYLES --- */
+        #welcomePopup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-box {
+            background: rgba(45, 130, 222, 0.2);
+            border: 3px solid #00acfb;
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 172, 251, 0.4);
+            color: white;
+        }
+
+        .popup-box h1 {
+            color: #08a1f4;
+            text-shadow: 0 0 15px #08a1f4;
+            margin-top: 0;
+        }
+
+        .popup-box p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #7dd3fc;
+        }
+
+        .enter-btn {
+            margin-top: 25px;
+            padding: 12px 35px;
+            background: #7b23ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px #7b23ff;
+            text-transform: uppercase;
+        }
+
+        .enter-btn:hover {
+            transform: scale(1.1);
+            background: #00acfb;
+            box-shadow: 0 0 30px #00acfb;
+        }
+
+        /* Navbar */
+        header { 
+            background: rgba(45, 130, 222, 0.8); 
+            backdrop-filter: blur(10px);
+            padding: 10px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 3px solid #00acfb;
+        }
+
+        .logo { 
+            font-weight: 900; color: #7b23ff; font-size: 1.8rem; 
+            letter-spacing: -1.5px; cursor: pointer; 
+            text-shadow: 2px 2px 0px #00b7ff;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .search-bar { width: 45%; display: flex; }
+        .search-bar input { 
+            width: 100%; padding: 10px 15px; border: 2px solid #0a98e5; 
+            border-radius: 25px 0 0 25px; outline: none; font-size: 16px; 
+        }
+        .search-bar button { 
+            padding: 0 20px; border: 2px solid #3400f0; border-left: none; 
+            border-radius: 0 25px 25px 0; cursor: pointer; background: #04314f; color: white;
+        }
+
+        /* Sidebar */
+        nav { 
+            width: 240px; background: rgba(7, 71, 124, 0.5); 
+            height: calc(100vh - 56px); padding: 15px; position: fixed; 
+            border-right: 2px solid #d71cd4;
+            backdrop-filter: blur(5px);
+        }
+        nav a { 
+            display: flex; align-items: center; gap: 10px; padding: 12px; 
+            text-decoration: none; color: #319ed1; font-weight: 600;
+            border-radius: 15px; margin-bottom: 5px; 
+        }
+        nav a:hover { background: #099ae2; color: #fff; transform: translateX(10px); }
+
+        /* Content Area */
+        .content { margin-left: 240px; flex: 1; padding: 25px; }
+        .section-title { 
+            font-size: 1.5rem; margin-bottom: 20px; color: #4d8eac; 
+            text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 0 10px #3abdfa;
+        }
+
+        /* Video Cards */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .video-card { 
+            cursor: pointer; width: 100%; background: rgba(11, 40, 45, 0.6); 
+            border-radius: 18px; padding: 10px; border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+        .video-card:hover { 
+            transform: translateY(-8px) scale(1.02); 
+            box-shadow: 0 0 25px rgba(255, 8, 49, 0.6); border-color: #f43f5e;
+            background: rgba(11, 40, 45, 0.9);
+        }
+        .thumbnail-container { border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; background: #000; }
+        .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .avatar { 
+            width: 38px; height: 38px; border-radius: 50%; border: 2px solid #7dd3fc; 
+            overflow: hidden; background: #1e055e; flex-shrink: 0;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
+
+        .text-info h3 { 
+            margin: 0; font-size: 16px; color: #08a1f4; font-weight: 700; 
+            text-shadow: 0 0 5px rgba(2, 146, 224, 0.8), 0 0 12px rgba(12, 170, 255, 0.4); 
+        }
+
+        .text-info p { 
+            margin-top: 5px; color: #137285; font-size: 14px; 
+            text-shadow: 0 0 6px rgba(0, 213, 255, 0.5); 
+        }
+
+        /* --- UPDATED GIF STYLE --- */
+        .screen-gif { 
+            position: fixed; 
+            width: 120px; 
+            z-index: 5000; 
+            pointer-events: none; 
+            filter: drop-shadow(0 0 15px #5106ff); 
+            /* Transition makes the movement smooth */
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        /* PLAYER OVERLAY */
+        #playerOverlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(1, 23, 41, 0.95); backdrop-filter: blur(15px);
+            z-index: 9999; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .player-container {
+            width: 85%; max-width: 1000px; position: relative;
+            background: #000; border-radius: 20px;
+            border: 3px solid #d71cd4; box-shadow: 0 0 40px rgba(215, 28, 212, 0.5);
+        }
+        .close-player-btn {
+            position: absolute; top: -18px; right: -18px; 
+            width: 45px; height: 45px; background: #f43f5e; 
+            color: white; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 22px; font-weight: bold;
+            border: 4px solid #011729; z-index: 10001;
+        }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px 16px 0 0; overflow: hidden; }
+        video#mainPlayer { width: 100%; height: 100%; display: block; object-fit: contain; }
+        .player-info-bar { padding: 20px; background: rgba(215, 28, 212, 0.1); border-radius: 0 0 20px 20px; }
+        #videoTitleDisplay { margin: 0; color: white; font-size: 1.5rem; text-shadow: 0 0 10px #f43f5e; }
+
+        .profile-dropdown {
+            display: none; position: absolute; top: 55px; right: 0;
+            background: #04314f; width: 250px; border-radius: 15px;
+            border: 1px solid #7dd3fc; padding: 10px 0; z-index: 3000;
+        }
+        .profile-dropdown a { color: #7dd3fc; padding: 10px 20px; text-decoration: none; display: block; }
+    </style>
+</head>
+<body>
+
+<div id="welcomePopup">
+    <div class="popup-box">
+        <h1>WELCOME TO SKYIEETUBEE!!</h1>
+        <p>Uhh hello this website is just a fan page for the skyverse and thats all lol thanks</p>
+        <button class="enter-btn" onclick="closePopup()">thats crazy wtv (proceed)</button>
+    </div>
+</div>
+
+<video autoplay muted loop id="bgVideo">
+    <source src="Friday Night Funkin' - Perfect Combo - Medium Effort Birdapp Mod + Cutscene [HARD].mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+
+<img src="OskyUp.gif" id="movingOsky" class="screen-gif" style="bottom: 20px; right: 20px;">
+
+<header>
+    <div class="logo">SKYIEETUBEE?!! <img src="OskyLeft.gif" width="50" style="filter: drop-shadow(0 0 5px #762e2e);"></div>
+    <div class="search-bar">
+        <input type="text" placeholder="search some skylar stuff...">
+        <button>🔍</button>
+    </div>
+    
+    <div class="user-menu-container">
+        <div class="avatar" style="width: 45px; height: 45px; cursor: pointer;" onclick="toggleProfileMenu()">
+            <img src="Screenshot 2026-02-05 222839.png" onerror="this.src='https://ui-avatars.com/api/?name=User&background=065fd4&color=fff'">
+        </div>
+        <div class="profile-dropdown" id="profileDropdown">
+            <div style="padding: 15px; font-weight: bold; color: white; border-bottom: 1px solid #7dd3fc;">My Sky Account</div>
+            <a href="#">👤 Your channel</a>
+            <a href="#">⚙️ Settings</a>
+            <a href="#" style="color: #ff4b4b;">🚪 Sign out</a>
+        </div>
+    </div>
+</header>
+
+<div class="main-layout">
+    <nav>
+        <a href="#" style="background: #520c94; color: white;">Home OF SKYLAR?</a>
+        <a href="#"><img src="white.png" width="30"> Shorts</a>
+        <a href="#"><img src="white.png" width="30"> Subs</a>
+        <hr style="border: 0; border-top: 1px solid #d71cd4; margin: 15px 0;">
+        <a href="#"> <img src="white.png" width="30"> Library</a>
+    </nav>
+    <main class="content" id="mainContent"></main>
+</div>
+
+<div id="playerOverlay">
+    <div class="player-container">
+        <div class="close-player-btn" onclick="closePlayer()">✕</div>
+        <div class="video-wrapper">
+            <video id="mainPlayer" controls></video>
+        </div>
+        <div class="player-info-bar">
+            <h2 id="videoTitleDisplay"></h2>
+        </div>
+    </div>
+</div>
+
+<script>
+    const videoLibrary = [
+        { title: "FNF vs Skyverse - Star", author: "Jerne", views: "1.2M", time: "2 days ago", url: "Star.mp4", thumbnail: "starr.jpg", profilePic: "modksyy.png" }, 
+        { title: "Ski wtf are u doing here?", author: "Matt?", views: "45K", time: "5 hours ago", url: "video2.mp4", thumbnail: "Ski.jpg", profilePic: "birdap.png" },
+        { title: "sky doing the stupidiest thing ever heee", author: "skyfangirl", views: "200K", time: "1 day ago", url: "video3.mp4", thumbnail: "-SkyStuff- on X.jpg", profilePic: "Bays.png" },
+        { title: "nusky gets mad", author: "milly", views: "15K", time: "3 weeks ago", url: "Friday Night Funkin' - Perfect Combo - Medium Effort Birdapp Mod + Cutscene [HARD].mp4", thumbnail: "sky.jpg", profilePic: "birdap.png" }
+    ];
+
+    const container = document.getElementById('mainContent');
+    const osky = document.getElementById('movingOsky');
+
+    // --- COORDINATE MECHANIC ---
+    function moveSky(x, y) {
+        osky.style.right = 'px'; // Disable the initial right/bottom
+        osky.style.bottom = 'px';
+        osky.style.left = x + 'px';
+        osky.style.top = y + 'px';
+    }
+
+    function jumpRandom() {
+        const maxX = window.innerWidth - 150;
+        const maxY = window.innerHeight - 150;
+        const randomX = Math.floor(Math.random() * maxX);
+        const randomY = Math.floor(Math.random() * maxY);
+        moveSky(randomX, randomY);
+    }
+
+    // POPUP LOGIC
+    function closePopup() {
+        document.getElementById('welcomePopup').style.display = 'none';
+        document.getElementById('bgVideo').play();
+    }
+
+    function renderHome() {
+        container.innerHTML = `<h2 class="section-title">NYANYAA ✨</h2>`;
+        const grid = document.createElement('div');
+        grid.className = 'video-grid';
+
+        videoLibrary.forEach(video => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.onclick = () => openPlayer(video.url, video.title);
+            card.innerHTML = `
+                <div class="thumbnail-container">
+                    <img src="${video.thumbnail}" onerror="this.src='https://placehold.co/600x400/222/white?text=Missing+Thumbnail'">
+                </div>
+                <div class="video-info" style="display:flex; gap:12px; margin-top:12px;">
+                    <div class="avatar"><img src="${video.profilePic}"></div>
+                    <div class="text-info">
+                        <h3>${video.title}</h3>
+                        <p>${video.author}</p>
+                        <p>${video.views} • ${video.time}</p>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        container.appendChild(grid);
+    }
+
+    function toggleProfileMenu() {
+        const menu = document.getElementById('profileDropdown');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function openPlayer(url, title) {
+        const overlay = document.getElementById('playerOverlay');
+        const player = document.getElementById('mainPlayer');
+        document.getElementById('videoTitleDisplay').textContent = title;
+        
+        // TRIGGER: Make Osky jump whenever a video is opened!
+        jumpRandom();
+
+        player.src = url;
+        overlay.style.display = 'flex';
+        player.play();
+    }
+
+    function closePlayer() {
+        const overlay = document.getElementById('playerOverlay');
+        const player = document.getElementById('mainPlayer');
+        overlay.style.display = 'none';
+        player.pause();
+        player.src = "";
+    }
+
+    renderHome();
+</script>
+
+</body>
+</html>
